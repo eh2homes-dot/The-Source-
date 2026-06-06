@@ -1,0 +1,10 @@
+# Secrets — the service_role key lives here. NEVER commit.
+.env
+.env.local
+
+# Dependencies / Playwright cache
+node_modules
+
+# Scraper run logs (from the daily LaunchAgent)
+scrape.log
+launchd.log

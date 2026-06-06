@@ -1,0 +1,12 @@
+/* Minimal global reset only. All component styling lives inline in App.jsx,
+   and each hub injects its own <style> block — keep this file tiny. */
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+}
+
+#root {
+  min-height: 100vh;
+}

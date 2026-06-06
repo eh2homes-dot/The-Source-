@@ -1,0 +1,16 @@
+{
+  "name": "founders-friends-scraper",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Job scraper service for Founders & Friends — fetches real jobs from ATS APIs and career pages, writes to Supabase.",
+  "scripts": {
+    "scrape": "node --env-file=.env run.js",
+    "scrape:opco": "node --env-file=.env run.js --hub=opco",
+    "scrape:proptech": "node --env-file=.env run.js --hub=proptech",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "playwright": "^1.48.0"
+  }
+}

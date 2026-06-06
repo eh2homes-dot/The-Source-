@@ -1,0 +1,18 @@
+FOUNDERS & FRIENDS — START HERE
+================================
+
+You don't need to code. Claude Code does it all.
+
+1. In VS Code: File → Open Folder → choose THIS folder (founders-and-friends).
+2. Open the Claude Code panel.
+3. Click "Bypass permissions" at the bottom.
+4. Paste the first message your assistant gave you into "Ask Claude to edit…".
+5. Let it run. When it asks for a secret key, go back to your chat for where to find it.
+
+WHAT'S IN HERE:
+- recruiting-site.jsx   → your app (Claude Code will turn this into src/App.jsx)
+- handoff/index.html    → the web page shell
+- CLAUDE.md             → the project rulebook (Claude Code reads this automatically)
+- handoff/SETUP.md      → the step-by-step build sequence
+- scraper/              → the job scraper service (real jobs only)
+- db-utils.sql          → database helper queries for Supabase
