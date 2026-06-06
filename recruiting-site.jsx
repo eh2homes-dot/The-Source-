@@ -230,13 +230,13 @@ function OpcoHub({ onBack }) {
     if (!form.resume.trim()) return;
     setAnalyzing(true); setAiAnalysis("");
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
+      const r = await fetch("/api/screen", {
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:700,
-          messages:[{ role:"user", content:`Senior SFR recruiter. Analyze for "${selectedJob?.title}" at ${selectedJob?.company}.\nSTRENGTHS:\nGAPS:\nMATCH SCORE: XX/100\nResume: ${form.resume}` }]
-        })
+        body: JSON.stringify({ hub:"opco", jobTitle:selectedJob?.title, company:selectedJob?.company, resume:form.resume })
       });
-      const d = await r.json(); setAiAnalysis(d.content?.[0]?.text || "Analysis complete.");
+      const d = await r.json().catch(()=>({}));
+      if (r.ok && d.analysis) setAiAnalysis(d.analysis);
+      else { console.error("AI screen error:", d.error || r.status); setAiAnalysis("Could not run the AI review right now. Please try again."); }
     } catch { setAiAnalysis("Could not connect. Please try again."); }
     setAnalyzing(false);
   };
@@ -603,13 +603,13 @@ function ProptechHub({ onBack }) {
     if (!form.resume.trim()) return;
     setAnalyzing(true); setAiAnalysis("");
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
+      const r = await fetch("/api/screen", {
         method:"POST", headers:{"Content-Type":"application/json"},
-        body: JSON.stringify({ model:"claude-sonnet-4-20250514", max_tokens:700,
-          messages:[{ role:"user", content:`Proptech recruiter. Analyze for "${selectedJob?.title}" at ${selectedJob?.company}.\nSTRENGTHS:\nGAPS:\nMATCH SCORE: XX/100\n${form.linkedin?`LinkedIn: ${form.linkedin}. `:""}Resume: ${form.resume}` }]
-        })
+        body: JSON.stringify({ hub:"proptech", jobTitle:selectedJob?.title, company:selectedJob?.company, resume:form.resume, linkedin:form.linkedin })
       });
-      const d = await r.json(); setAiAnalysis(d.content?.[0]?.text || "Analysis complete.");
+      const d = await r.json().catch(()=>({}));
+      if (r.ok && d.analysis) setAiAnalysis(d.analysis);
+      else { console.error("AI screen error:", d.error || r.status); setAiAnalysis("Could not run the AI review right now. Please try again."); }
     } catch { setAiAnalysis("Could not connect. Please try again."); }
     setAnalyzing(false);
   };
