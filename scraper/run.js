@@ -8,7 +8,7 @@
 // Schedule it with cron (see README.md) to keep listings fresh.
 
 import { COMPANIES } from "./config.js";
-import { fetchGreenhouse, fetchLever, fetchBreezy } from "./ats.js";
+import { fetchGreenhouse, fetchLever, fetchBreezy, fetchWorkable, fetchEsusu } from "./ats.js";
 import { scrapeWorkday, scrapeGenericDOM } from "./sites/workday.js";
 import { scrapeJsonLd } from "./sites/jsonld.js";
 import { scrapeReffie } from "./sites/reffie.js";
@@ -23,6 +23,8 @@ async function getJobsFor(c) {
     case "greenhouse": jobs = await fetchGreenhouse(c.token, c.company); break;
     case "lever":      jobs = await fetchLever(c.token, c.company); break;
     case "breezy":     jobs = await fetchBreezy(c.token, c.company); break;
+    case "workable":   jobs = await fetchWorkable(c.token, c.company); break;
+    case "esusu":      jobs = await fetchEsusu(c); break;
     case "workday":    jobs = await scrapeWorkday(c); break;
     case "jsonld":     jobs = await scrapeJsonLd(c); break;
     case "reffie":     jobs = await scrapeReffie(c); break;
