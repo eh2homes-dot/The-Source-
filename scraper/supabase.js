@@ -14,7 +14,20 @@ export const supabase = createClient(SUPABASE_URL, SERVICE_KEY, {
   auth: { persistSession: false },
 });
 
+// How many rows this company has right now (before we replace them). Used to
+// flag a source that suddenly drops to zero — usually a sign the careers page moved.
+export async function countCompanyJobs(company, hub) {
+  const { count, error } = await supabase
+    .from("jobs")
+    .select("*", { count: "exact", head: true })
+    .eq("company", company)
+    .eq("hub", hub);
+  if (error) return null; // unknown — don't block the sync over a count
+  return count ?? 0;
+}
+
 // Replace all jobs for a given company with a fresh scrape.
+// Throws on a database error so run.js reports it instead of logging "0 live roles".
 // This keeps listings current: stale roles disappear, new ones appear.
 export async function syncCompanyJobs(company, hub, jobs) {
   // 1. Remove this company's existing rows (so closed roles drop off)
@@ -23,7 +36,7 @@ export async function syncCompanyJobs(company, hub, jobs) {
     .delete()
     .eq("company", company)
     .eq("hub", hub);
-  if (delErr) { console.error(`  ✗ delete failed for ${company}:`, delErr.message); return 0; }
+  if (delErr) throw new Error(`Supabase delete failed: ${delErr.message}`);
 
   if (jobs.length === 0) return 0;
 
@@ -41,6 +54,6 @@ export async function syncCompanyJobs(company, hub, jobs) {
   }));
 
   const { error: insErr } = await supabase.from("jobs").insert(rows);
-  if (insErr) { console.error(`  ✗ insert failed for ${company}:`, insErr.message); return 0; }
+  if (insErr) throw new Error(`Supabase insert failed: ${insErr.message}`);
   return rows.length;
 }
