@@ -54,7 +54,7 @@ export const COMPANIES = [
   { company: "Property Meld", hub: "proptech", method: "breezy",     token: "property-meld" }, // maintenance coordination SaaS, Breezy HR board (verified ~4)
   { company: "Showdigs",      hub: "proptech", method: "breezy",     token: "showdigs" },      // self-touring / showing coordination, Breezy HR board (verified — board live, 0 open right now)
   { company: "Lineage",       hub: "proptech", method: "dom", url: "https://www.lineagehq.com/careers", selectors: { row: "a.job-listing", title: "div > div:first-child", location: "div > div:nth-child(2)" } }, // real-estate investing infrastructure for SFR. Greenhouse board removed; roles now listed directly on their Webflow careers page. Re-verified 2026-11-23 (~1 role)
-  { company: "Reffie",        hub: "proptech", method: "reffie",     listUrl: "https://reffie.me/jobs" }, // leasing CRM/workflow; custom scrape of their Framer careers page (verified ~3)
+  { company: "Reffie",        hub: "proptech", method: "dom", url: "https://careers.reffie.com/", selectors: { row: "a.job-row", title: ".job-row__title", location: ".job-row__meta .chip:first-child" } }, // leasing CRM/workflow. reffie.me/jobs now redirects to careers.reffie.com (new Astro site); re-verified 2026-11-23 (~2 roles)
 
   // Requested but NOT wired (no machine-readable public job feed found on 2026-06-06 — real jobs only):
   //   Second Nature  → JazzHR board (secondnature.applytojob.com); 0 open and no public JSON feed. Will wire an HTML scraper once they post a role we can validate against.
