@@ -12,7 +12,8 @@ import { fetchGreenhouse, fetchLever, fetchBreezy, fetchWorkable, fetchEsusu } f
 import { scrapeWorkday, scrapeGenericDOM } from "./sites/workday.js";
 import { scrapeJsonLd } from "./sites/jsonld.js";
 import { scrapeReffie } from "./sites/reffie.js";
-import { syncCompanyJobs } from "./supabase.js";
+import { syncCompanyJobs, countCompanyJobs } from "./supabase.js";
+import { appendFileSync } from "node:fs";
 
 const hubArg = process.argv.find((a) => a.startsWith("--hub="));
 const hubFilter = hubArg ? hubArg.split("=")[1] : null;
@@ -47,20 +48,53 @@ async function main() {
 
   console.log(`Scraping ${targets.length} companies${hubFilter ? ` (${hubFilter})` : ""}…\n`);
   let total = 0;
+  const problems = []; // { company, kind: "error" | "dropped", detail }
 
   for (const c of targets) {
     try {
+      const before = await countCompanyJobs(c.company, c.hub);
       const jobs = await getJobsFor(c);
       const n = await syncCompanyJobs(c.company, c.hub, jobs);
       total += n;
       console.log(`  ✓ ${c.company.padEnd(28)} ${n} live roles`);
+      // A source that had roles yesterday and returns none today has usually moved
+      // its careers page (e.g. Reffie, Nov 2026). Flag it once; tomorrow "before" is 0.
+      if (before > 0 && n === 0) {
+        problems.push({ company: c.company, kind: "dropped", detail: `had ${before} roles, now 0 — check whether their careers page moved` });
+      }
     } catch (err) {
-      // A failed source must NOT inject fake data — we just log and move on.
+      // A failed source must NOT inject fake data — we keep its existing rows and move on.
       console.error(`  ✗ ${c.company.padEnd(28)} ${err.message}`);
+      problems.push({ company: c.company, kind: "error", detail: err.message.split("\n")[0] });
     }
   }
 
   console.log(`\nDone. ${total} total roles synced to Supabase.`);
+
+  if (problems.length) {
+    console.log(`\n${problems.length} source(s) need attention:`);
+    for (const p of problems) {
+      const title = p.kind === "error" ? `${p.company}: scrape failed` : `${p.company}: dropped to 0 roles`;
+      // GitHub Actions annotation — shows on the run page (plain text when run locally).
+      console.log(`::error title=${title}::${p.detail}`);
+    }
+  }
+
+  // Run summary on the GitHub Actions run page.
+  if (process.env.GITHUB_STEP_SUMMARY) {
+    const lines = [`### Job scrape: ${total} roles synced`, ""];
+    if (problems.length) {
+      lines.push("| Company | Problem |", "|---|---|");
+      for (const p of problems) lines.push(`| ${p.company} | ${p.kind === "error" ? "Failed: " : ""}${p.detail.replace(/\|/g, "/")} |`);
+    } else {
+      lines.push("All sources scraped cleanly.");
+    }
+    appendFileSync(process.env.GITHUB_STEP_SUMMARY, lines.join("\n") + "\n");
+  }
+
+  // Mark the run failed so GitHub emails you. Every working source has already
+  // synced by this point — this only makes the problem visible.
+  if (problems.length) process.exitCode = 1;
 }
 
 main();
