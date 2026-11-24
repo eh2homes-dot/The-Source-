@@ -66,9 +66,10 @@ export async function scrapeGenericDOM({ url, selectors }) {
       const location = selectors.location
         ? await row.$eval(selectors.location, (el) => el.textContent.trim()).catch(() => "See listing")
         : "See listing";
+      // No link selector → the row itself may be the <a> (e.g. Lineage's a.job-listing cards).
       const url = selectors.link
         ? await row.$eval(selectors.link, (el) => el.href).catch(() => null)
-        : null;
+        : await row.evaluate((el) => el.href || null).catch(() => null);
       jobs.push({ title, location, dept: "General", url, type: "Full-time" });
     }
   } finally {
