@@ -1,11 +1,12 @@
 // config.js — the source of truth for WHERE each company's jobs come from.
 //
-// method: "greenhouse" | "lever" | "breezy" | "workday" | "jsonld" | "dom"
+// method: "greenhouse" | "lever" | "breezy" | "workable" | "workday" | "jsonld" | "dom" (+ custom: "esusu", "reffie")
 //
 // HOW TO FILL THIS IN — open the company's careers page and look at the URL:
 //   boards.greenhouse.io/TOKEN          → { method: "greenhouse", token: "TOKEN" }
 //   jobs.lever.co/TOKEN                 → { method: "lever", token: "TOKEN" }
 //   TOKEN.breezy.hr                     → { method: "breezy", token: "TOKEN" }
+//   apply.workable.com/TOKEN            → { method: "workable", token: "TOKEN" }
 //   TENANT.wdN.myworkdayjobs.com/SITE   → { method: "workday", tenant, wd, site }
 //   Paradox.ai careersite w/ sitemap    → { method: "jsonld", sitemap: "https://…/sitemap.xml" }
 //   anything else (JS-rendered list)    → { method: "dom", url, selectors }
@@ -21,7 +22,7 @@
 
 export const COMPANIES = [
   // ── OpCo (operators — companies that manage doors) ───────────────────────────
-  { company: "Belong", hub: "opco", method: "lever", token: "belong", careersUrl: "https://belonghome.com/careers" }, // Belong Home — SFR rental management. Public Lever pages are disabled (every jobs.lever.co/belong link 404s), so job links point to their working careers site (verified ~44 roles)
+  { company: "Belong", hub: "opco", method: "workable", token: "belong-6" }, // Belong Home — SFR rental management. Moved off Lever to Workable (apply.workable.com/belong-6); re-verified 2026-11-23 (~4 roles)
 
   // FirstKey Homes runs a custom "FKH Careers" site with no public Greenhouse/
   // Lever/Workday API we could find (the "firstkeyhomes" Greenhouse token 404s).
@@ -45,14 +46,14 @@ export const COMPANIES = [
   { company: "Lessen",      hub: "proptech", method: "lever",      token: "lessen" },     // property maintenance/renovation tech (verified ~56)
   { company: "Roofstock",   hub: "proptech", method: "greenhouse", token: "roofstock" },  // SFR investment marketplace/platform (verified ~52)
   { company: "Findigs",     hub: "proptech", method: "lever",      token: "findigs" },     // rental application & screening software (verified ~12)
-  { company: "Esusu",       hub: "proptech", method: "greenhouse", token: "esusu" },       // rent reporting / credit building (verified ~9)
+  { company: "Esusu",       hub: "proptech", method: "esusu", listUrl: "https://resident-api.esusurent.com/v1/careers/jobs", deelBoard: "b5e3689c-100a-472f-a2ad-4409cf300896" }, // rent reporting / credit building. Moved off Greenhouse to Deel; feed is the JSON their careers page loads. Re-verified 2026-11-23 (~7 roles)
   { company: "Flock Homes", hub: "proptech", method: "greenhouse", token: "flockhomes" },  // 721-exchange platform for SFR owners (verified ~3)
   { company: "Kiavi",       hub: "proptech", method: "greenhouse", token: "kiavi" },       // lending/fintech for real-estate investors (verified ~1)
 
   // Added 2026-06-06 (each board confirmed to belong to the right company before adding):
   { company: "Property Meld", hub: "proptech", method: "breezy",     token: "property-meld" }, // maintenance coordination SaaS, Breezy HR board (verified ~4)
   { company: "Showdigs",      hub: "proptech", method: "breezy",     token: "showdigs" },      // self-touring / showing coordination, Breezy HR board (verified — board live, 0 open right now)
-  { company: "Lineage",       hub: "proptech", method: "greenhouse", token: "lineagehq" },     // real-estate investing infrastructure for SFR, Greenhouse (verified — board live, 0 open right now)
+  { company: "Lineage",       hub: "proptech", method: "dom", url: "https://www.lineagehq.com/careers", selectors: { row: "a.job-listing", title: "div > div:first-child", location: "div > div:nth-child(2)" } }, // real-estate investing infrastructure for SFR. Greenhouse board removed; roles now listed directly on their Webflow careers page. Re-verified 2026-11-23 (~1 role)
   { company: "Reffie",        hub: "proptech", method: "reffie",     listUrl: "https://reffie.me/jobs" }, // leasing CRM/workflow; custom scrape of their Framer careers page (verified ~3)
 
   // Requested but NOT wired (no machine-readable public job feed found on 2026-06-06 — real jobs only):
