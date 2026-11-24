@@ -57,7 +57,9 @@ export async function scrapeGenericDOM({ url, selectors }) {
   const browser = await chromium.launch({ headless: true });
   try {
     const page = await browser.newPage();
-    await page.goto(url, { waitUntil: "networkidle", timeout: 30000 });
+    // "domcontentloaded" + waitForSelector, not "networkidle": marketing sites with
+    // analytics/video (e.g. Lineage) never go network-idle, so networkidle times out.
+    await page.goto(url, { waitUntil: "domcontentloaded", timeout: 30000 });
     await page.waitForSelector(selectors.row, { timeout: 15000 }).catch(() => {});
     const rows = await page.$$(selectors.row);
     for (const row of rows) {
