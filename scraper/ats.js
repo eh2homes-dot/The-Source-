@@ -44,3 +44,36 @@ export async function fetchBreezy(token, company) {
     type: j.type?.name || "Full-time",
   }));
 }
+
+// Workable exposes a public JSON widget feed at
+// https://apply.workable.com/api/v1/widget/accounts/{token} (token = the slug in
+// apply.workable.com/{token}). Used by Belong (moved off Lever in 2026).
+export async function fetchWorkable(token, company) {
+  const res = await fetch(`https://apply.workable.com/api/v1/widget/accounts/${token}`);
+  if (!res.ok) throw new Error(`Workable ${token} → ${res.status}`);
+  const data = await res.json();
+  return (data.jobs || []).map((j) => ({
+    title: j.title,
+    location: j.telecommuting
+      ? "Remote"
+      : [j.city, j.state, j.country].filter(Boolean).join(", ") || "Remote",
+    dept: j.department || "General",
+    url: j.url || j.shortlink,
+    type: j.employment_type || "Full-time",
+  }));
+}
+
+// Esusu moved off Greenhouse to Deel in 2026. Their careers page loads roles from
+// their own public JSON endpoint; each role's apply page lives on jobs.deel.com.
+export async function fetchEsusu({ listUrl, deelBoard }) {
+  const res = await fetch(listUrl);
+  if (!res.ok) throw new Error(`Esusu careers API → ${res.status}`);
+  const data = await res.json();
+  return (data.data || []).map((j) => ({
+    title: (j.title || "").trim(),
+    location: (j.locations || []).join(" / ") || "Remote",
+    dept: j.departments?.[0] || "General",
+    url: `https://jobs.deel.com/${deelBoard}/job-details/${j.id}/overview`,
+    type: j.employment_types?.[0] || "Full-time",
+  }));
+}
